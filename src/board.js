@@ -1,10 +1,20 @@
 import React from 'react';
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Square } from './sq.js';
 import './board.css';
+import io from 'socket.io-client';
+
+const socket = io()
 
 export function Board() {
   const[useTeam, setTeam] = useState("X")
+  
+  useEffect(() => {
+    socket.on('move', (data) => {
+      
+    })
+  })
+  
     return (
       <div>
         <table>

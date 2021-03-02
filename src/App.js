@@ -3,14 +3,21 @@ import './App.css';
 import { Board } from './board.js'
 import React from "react";
 import { useRef, useState } from "react";
+import io from 'socket.io-client';
+
+const socket = io();
 
 function App() {
   const [showLogin, setShowLogin] = useState(true)
   
   function closeLogin() {
     let newName = document.getElementById("name_input");
-    setShowLogin(false)
+    setShowLogin(false);
+    console.log("test1");
+    socket.emit("nameSubmit", {name: newName.value});
+    console.log("test2");
   }
+  
   
   return (
     <div>
