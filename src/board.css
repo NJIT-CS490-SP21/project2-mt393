@@ -1,0 +1,11 @@
+Table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  float: right;
+}
+
+td, th{
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
