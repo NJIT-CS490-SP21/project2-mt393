@@ -1,15 +1,24 @@
 import React from 'react';
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import './board.css';
+import {socket} from './App.js';
 
 export function Square(props) {
-    const [occupiedBy, setBy] = useState("")
-    
-    
+    function clicked() {
+        socket.emit("move", {"square": props.num});
+    }
     
     return (
         <td>
-            { props.team }
+            { props.turn === true ? (
+                <button onClick={() => clicked()}>
+                    { props.team }
+                </button>
+            ) : (
+                <div>
+                    { props.team }
+                </div>
+            )}
         </td>
         );
 }
