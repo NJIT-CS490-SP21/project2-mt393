@@ -5,7 +5,7 @@ import React from "react";
 import { useRef, useState } from "react";
 import io from 'socket.io-client';
 
-const socket = io();
+export const socket = io();
 
 function App() {
   const [showLogin, setShowLogin] = useState(true)
