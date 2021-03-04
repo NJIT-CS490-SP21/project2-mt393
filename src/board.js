@@ -15,16 +15,16 @@ export function Board() {
   useEffect(() => {
     socket.on('boardUpdate', (data) => {
       setTeam(data["updatedBoard"]);
-    })
-  })
+    });
+  });
   
   useEffect(() => {
         socket.on("turn", () => {
             setMyTurn((prevTurn) => {
               return !prevTurn;
             });
-        })
-    })
+        });
+    });
   
     return (
       <div>
@@ -53,5 +53,5 @@ export function Board() {
           <button>Restart</button>
         )}
       </div>
-    )
+    );
 }

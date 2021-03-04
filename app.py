@@ -42,7 +42,6 @@ def on_nameSubmit(data):
         socketio.emit("turn", {}, room=sids[0])
     if (len(sids)==2):
         join_room(roomname)
-    # TODO emit update usernames
 
 @socketio.on('move')
 def on_move(data):
@@ -75,7 +74,6 @@ def on_disconnect():
     leaving = sids.index(sid)
     sids.pop(leaving)
     usernames.pop(leaving)
-    # TODO emit update usernames
     print("User disconnected!")
     
 
