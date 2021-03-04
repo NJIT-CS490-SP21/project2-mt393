@@ -8,6 +8,10 @@ export function Board() {
   const[useTeam, setTeam] = useState(["", "", "", "", "", "", "", "", ""]);
   const [myTurn, setMyTurn] = useState(false);
   
+  function restart() {
+    socket.emit("restart", {});
+  }
+  
   useEffect(() => {
     socket.on('boardUpdate', (data) => {
       setTeam(data["updatedBoard"]);
@@ -18,7 +22,6 @@ export function Board() {
         socket.on("turn", () => {
             setMyTurn((prevTurn) => {
               return !prevTurn;
-              
             });
         })
     })
@@ -44,6 +47,11 @@ export function Board() {
             </tr>
           </tbody>
         </table>
+        { myTurn === true ? (
+          <button onClick={() => restart()}>Restart</button>
+        ) : (
+          <button>Restart</button>
+        )}
       </div>
     )
 }
