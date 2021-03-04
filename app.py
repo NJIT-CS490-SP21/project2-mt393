@@ -1,6 +1,6 @@
 import os
 from flask import Flask, send_from_directory, json, session, request
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='./build/static')
@@ -17,6 +17,7 @@ usernames = []
 sids = []
 turnX = True
 board = ["", "", "", "", "", "", "", "", ""]
+roomname ="xando"
 
 def emitBoard():
     socketio.emit("boardUpdate", {"updatedBoard": board})
@@ -37,7 +38,11 @@ def on_nameSubmit(data):
     usernames.append(str(data["name"]))
     sids.append(sid)
     if (len(sids)==1):
+        join_room(roomname)
         socketio.emit("turn", {}, room=sids[0])
+    if (len(sids)==2):
+        join_room(roomname)
+    # TODO emit update usernames
 
 @socketio.on('move')
 def on_move(data):
@@ -50,12 +55,29 @@ def on_move(data):
         board[data["square"]-1] = "O"
         turnX = True
         emitBoard()
-    socketio.emit("turn", {}, room=sids[1])
-    socketio.emit("turn", {}, room=sids[0])
+        socketio.emit("turn", {}, room=roomname)
+
+@socketio.on('restart')
+def on_restart(data):
+    global turnX
+    global board
+    board = ["", "", "", "", "", "", "", "", ""]
+    emitBoard()
+    if (not turnX):
+        socketio.emit("turn", {}, room=roomname)
+        turnX = True
+        
+    
 
 @socketio.on('disconnect')
 def on_disconnect():
+    sid=request.sid
+    leaving = sids.index(sid)
+    sids.pop(leaving)
+    usernames.pop(leaving)
+    # TODO emit update usernames
     print("User disconnected!")
+    
 
 socketio.run(
     app,
