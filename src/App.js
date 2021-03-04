@@ -1,14 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
-import { Board } from './board.js'
+import { Board } from './board.js';
 import React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import io from 'socket.io-client';
 
 export const socket = io();
 
 function App() {
-  const [showLogin, setShowLogin] = useState(true)
+  const [showLogin, setShowLogin] = useState(true);
   
   function closeLogin() {
     let newName = document.getElementById("name_input");
@@ -17,7 +17,6 @@ function App() {
     socket.emit("nameSubmit", {name: newName.value});
     console.log("test2");
   }
-  
   
   return (
     <div>
