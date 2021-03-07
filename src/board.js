@@ -7,22 +7,45 @@ import {socket} from './App.js';
 export function Board() {
   const[useTeam, setTeam] = useState(["", "", "", "", "", "", "", "", ""]);
   const [myTurn, setMyTurn] = useState(false);
+  const [winner, setWinner] = useState("")
   
   function restart() {
     socket.emit("restart", {});
   }
   
+  function calculateWinner(squares) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return "";
+  }
+  
   useEffect(() => {
     socket.on('boardUpdate', (data) => {
       setTeam(data["updatedBoard"]);
+      setWinner(calculateWinner(data["updatedBoard"]));
+      if (winner) {
+        setMyTurn(false);
+      }
     });
   });
   
   useEffect(() => {
-        socket.on("turn", () => {
-            setMyTurn((prevTurn) => {
-              return !prevTurn;
-            });
+        socket.on("whosTurn", (data) => {
+            setMyTurn(data["turn"]);
         });
     });
   
@@ -47,11 +70,12 @@ export function Board() {
             </tr>
           </tbody>
         </table>
-        { myTurn === true ? (
+        { myTurn === true || winner === true? (
           <button onClick={() => restart()}>Restart</button>
         ) : (
           <button>Restart</button>
         )}
+        { winner ? (<h1>The winner is { winner }!</h1>):(null)}
       </div>
     );
 }

@@ -21,6 +21,10 @@ roomname ="xando"
 
 def emitBoard():
     socketio.emit("boardUpdate", {"updatedBoard": board})
+    
+def emitTurn():
+    socketio.emit("whosTurn", {"turn": turnX}, room=sids[0])
+    socketio.emit("whosTurn", {"turn": not turnX}, room=sids[1])
  
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
@@ -38,10 +42,7 @@ def on_nameSubmit(data):
     usernames.append(str(data["name"]))
     sids.append(sid)
     if (len(sids)==1):
-        join_room(roomname)
-        socketio.emit("turn", {}, room=sids[0])
-    if (len(sids)==2):
-        join_room(roomname)
+        socketio.emit("whosTurn", {"turn": turnX}, room=sids[0])
 
 @socketio.on('move')
 def on_move(data):
@@ -49,12 +50,11 @@ def on_move(data):
     if (turnX):
         board[data["square"]-1] = "X"
         turnX = False
-        emitBoard()
     else:
         board[data["square"]-1] = "O"
         turnX = True
-        emitBoard()
-        socketio.emit("turn", {}, room=roomname)
+    emitTurn()
+    emitBoard()
 
 @socketio.on('restart')
 def on_restart(data):
@@ -63,8 +63,8 @@ def on_restart(data):
     board = ["", "", "", "", "", "", "", "", ""]
     emitBoard()
     if (not turnX):
-        socketio.emit("turn", {}, room=roomname)
         turnX = True
+    emitTurn()
         
     
 
