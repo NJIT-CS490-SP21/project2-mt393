@@ -10,7 +10,7 @@ export function Square(props) {
     
     return (
         <td>
-            { props.turn === true ? (
+            { props.turn === true && props.team === ""? (
                 <button onClick={() => clicked()}>
                     { props.team }
                 </button>

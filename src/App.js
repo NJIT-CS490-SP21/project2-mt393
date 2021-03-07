@@ -13,9 +13,7 @@ function App() {
   function closeLogin() {
     let newName = document.getElementById("name_input");
     setShowLogin(false);
-    console.log("test1");
     socket.emit("nameSubmit", {name: newName.value});
-    console.log("test2");
   }
   
   return (
