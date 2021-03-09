@@ -39,6 +39,7 @@ export function Board() {
       setWinner(calculateWinner(data["updatedBoard"]));
       if (winner) {
         setMyTurn(false);
+        socket.emit("gameWon", {"winner": winner});
       }
     });
   });

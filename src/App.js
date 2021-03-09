@@ -4,6 +4,7 @@ import { Board } from './board.js';
 import React from "react";
 import { useRef, useState, useEffect } from "react";
 import io from 'socket.io-client';
+import { LB } from "./LB.js"
 
 export const socket = io();
 
@@ -26,6 +27,7 @@ function App() {
       ) : (
         <div>
           <Board />
+          <LB />
         </div>
       )}
     </div>
