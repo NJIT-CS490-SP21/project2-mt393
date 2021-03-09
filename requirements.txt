@@ -2,3 +2,5 @@ Flask
 python-dotenv
 Flask-SocketIO
 Flask-Cors
+Flask-SQLAlchemy==2.1
+psycopg2-binary
