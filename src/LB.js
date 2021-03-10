@@ -36,7 +36,7 @@ export function LB() {
                         {leaders.map(
                         (leader, index) =>
                         <tr key={index}>
-                            <td>{index}</td>
+                            <td>{index+1}</td>
                             <td>{leader}</td>
                             <td>{scores[index]}</td>
                         </tr>)
