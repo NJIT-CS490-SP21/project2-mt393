@@ -13,34 +13,21 @@ export function Board() {
     socket.emit("restart", {});
   }
   
-  function calculateWinner(squares) {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
-      }
-    }
-    return "";
-  }
+  useEffect(() => {
+    socket.on('newgame', () => {
+      setWinner("");
+    });
+  });
   
   useEffect(() => {
     socket.on('boardUpdate', (data) => {
       setTeam(data["updatedBoard"]);
-      setWinner(calculateWinner(data["updatedBoard"]));
-      if (winner) {
-        setMyTurn(false);
-        socket.emit("gameWon", {"winner": winner});
-      }
+    });
+  });
+  
+  useEffect(() => {
+    socket.on('gameWon', (data) => {
+      setWinner(data["winner"]);
     });
   });
   
@@ -71,7 +58,7 @@ export function Board() {
             </tr>
           </tbody>
         </table>
-        { myTurn === true || winner === true? (
+        { myTurn || winner ? (
           <button onClick={() => restart()}>Restart</button>
         ) : (
           <button>Restart</button>
