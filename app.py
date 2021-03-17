@@ -5,7 +5,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 from flask_sqlalchemy import SQLAlchemy
 
-load_dotenv('sql.env')
+
+load_dotenv(find_dotenv())
 
 app = Flask(__name__, static_folder='./build/static')
 
@@ -20,6 +21,7 @@ socketio = SocketIO(
 database_uri = os.environ["DATABASE_URL"]
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 db.init_app(app)
@@ -52,20 +54,25 @@ def emitLB():
     })
     db.session.remove()
 
-def on_gameWon(won):
-    socketio.emit("gameWon", {"winner": won})
+def getWinnerLoser(won, names): # UNMOCKED TEST2
     if (won=="X"):
-        winner = usernames[0]
-        loser = usernames[1]
+        winner = names[0]
+        loser = names[1]
     else:
-        loser = usernames[0]
-        winner = usernames[1]
+        loser = names[0]
+        winner = names[1]
+    return {"winner": winner, "loser":loser}
+
+def setWinnerRanks(winner): #MOCKED TEST2
     user = db.session.query(models.allusers).filter(models.allusers.username==winner).first()
     user.rating += 1
+    db.session.commit()
+    db.session.remove()
+
+def setLoserRanks(loser):
     user = db.session.query(models.allusers).filter(models.allusers.username==loser).first()
     user.rating -= 1
     db.session.commit()
-    emitLB()
     db.session.remove()
 
 def calculateWinner(squares):
@@ -90,7 +97,11 @@ def calculateWinner(squares):
 def emitBoard():
     winner = calculateWinner(board)
     if (winner):
-        on_gameWon(winner)
+        socketio.emit("gameWon", {"winner": winner})
+        outcome = getWinnerLoser(winner, usernames)
+        setWinnerRanks(outcome["winner"])
+        setLoserRanks(outcome["loser"])
+        emitLB()
     socketio.emit("boardUpdate", {"updatedBoard": board})
     
 def emitTurn():
@@ -113,11 +124,7 @@ def on_nameSubmit(data):
     user = str(data["name"])
     print(str(data))
     usernames.append(user)
-    nameExist = models.allusers.query.filter(models.allusers.username==user).count()
-    if (not nameExist):
-        db.session.add(models.allusers(user, 100))
-        db.session.commit()
-    # TODO - add to DB
+    addToLB(user)
     sids.append(sid)
     if (len(sids)==1):
         socketio.emit("whosTurn", {"turn": turnX}, room=sids[0])
@@ -125,17 +132,33 @@ def on_nameSubmit(data):
     emitLB()
     db.session.remove()
 
+def addToLB(user): # MOCKED TEST1
+    nameExist = models.allusers.query.filter(models.allusers.username==user).count()
+    if (not nameExist):
+        db.session.add(models.allusers(user, 100))
+        db.session.commit()
+    db.session.remove()
+
 @socketio.on('move')
 def on_move(data):
     global turnX
-    if (turnX):
-        board[data["square"]-1] = "X"
-        turnX = False
-    else:
-        board[data["square"]-1] = "O"
-        turnX = True
+    global board
+    board = makeMove(data["square"], turnX, board)
+    turnX = takeTurn(turnX)
     emitTurn()
     emitBoard()
+
+def makeMove(sqNumber, turn, board): # UNMOCKED TEST1
+    squares = board
+    if (turn):
+        squares[sqNumber-1] = "X"
+    else:
+        squares[sqNumber-1] = "O"
+    return squares
+
+def takeTurn(turnX):
+    turn = not turnX
+    return turn
 
 @socketio.on('restart')
 def on_restart(data):
@@ -143,9 +166,9 @@ def on_restart(data):
     global turnX
     global board
     board = ["", "", "", "", "", "", "", "", ""]
-    emitBoard()
     if (not turnX):
         turnX = True
+    emitBoard()
     emitTurn()
 
 @socketio.on('disconnect')
