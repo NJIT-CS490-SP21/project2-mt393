@@ -1,28 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
-import { Board } from './board.js';
-import React from "react";
-import { useRef, useState, useEffect } from "react";
-import io from 'socket.io-client';
-import { LB } from "./LB.js"
-
-export const socket = io();
+import "./App.css";
+import React, { useState } from "react";
+import { socket } from "./socket";
+import { Board } from "./board";
+import { LB } from "./LB";
 
 function App() {
   const [showLogin, setShowLogin] = useState(true);
-  
+
   function closeLogin() {
-    let newName = document.getElementById("name_input");
+    const newName = document.getElementById("name_input");
     setShowLogin(false);
-    socket.emit("nameSubmit", {name: newName.value});
+    socket.emit("nameSubmit", { name: newName.value });
   }
-  
+
   return (
     <div>
       {showLogin === true ? (
         <form onSubmit={() => closeLogin()}>
-          <input id="name_input" maxLength="20" placeholder="Make a name!"></input>
-          <button>Submit</button>
+          <input
+            id="name_input"
+            maxLength="20"
+            placeholder="Make a name!"
+           />
+          <button type="submit">Submit</button>
         </form>
       ) : (
         <div>
