@@ -56,7 +56,6 @@ def emit_lb():
         db_username.username for db_username in \
         DB.session.query(models.allusers).order_by(models.allusers.rating.desc()).all()
         ]
-    # assert list returned & right order
 
     top_ratings = [ \
         db_rating.rating for db_rating in \
@@ -66,7 +65,7 @@ def emit_lb():
     DB.session.remove()
 
 
-def get_winner_loser(won, names):  # UNMOCKED TEST2
+def get_winner_loser(won, names):
     """given whether the winner was x or o, this function finds the
     names of x and o so they can later be assigned points and a rank"""
     if won == "X":
@@ -78,7 +77,7 @@ def get_winner_loser(won, names):  # UNMOCKED TEST2
     return {"winner": winner, "loser": loser}
 
 
-def set_winner_ranks(winner):  #MOCKED TEST2
+def set_winner_ranks(winner):
     """given the username of a winner, this method awards them
     their earned points in the eyes of the database"""
     query = DB.session.query(models.allusers).filter_by(username=winner)
@@ -86,9 +85,6 @@ def set_winner_ranks(winner):  #MOCKED TEST2
         user.rating += 1
     DB.session.commit()
     DB.session.remove()
-
-    # test case
-    # assert user rating & filter returns 1
 
 
 def set_loser_ranks(loser):
@@ -132,7 +128,7 @@ def emit_board():
         SOCKETIO.emit("gameWon", {"winner": winner})
         outcome = get_winner_loser(winner, USERNAMES)
         set_winner_ranks(outcome["winner"])
-        #set_loser_ranks(outcome["loser"])
+        set_loser_ranks(outcome["loser"])
         emit_lb()
     SOCKETIO.emit("boardUpdate", {"updatedBoard": BOARD})
 
@@ -176,7 +172,7 @@ def on_name_submit(data):
     DB.session.remove()
 
 
-def add_to_lb(user):  # MOCKED TEST1
+def add_to_lb(user):
     """checks if a name is already on the leaderboard and if not,
     it puts them on there with 100 points"""
     others = models.allusers.query.filter_by(username=user)
@@ -204,7 +200,7 @@ def on_move(data):
     emit_board()
 
 
-def make_move(sq_number, turn, board):  # UNMOCKED TEST1
+def make_move(sq_number, turn, board):
     """provides what the updated board will look like after
     a move is made"""
     squares = board
