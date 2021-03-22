@@ -3,17 +3,17 @@ import React from "react";
 import PropTypes from 'prop-types';
 import { socket } from "./socket";
 
-export function Square(props) {
+export function Square({num, turn, team}) {
   function clicked() {
-    socket.emit("move", { square: props.num });
+    socket.emit("move", { square: num });
   }
 
   return (
     <td>
-      {props.turn === true && props.team === "" ? (
-        <button type="button" onClick={() => clicked()}>{props.team}</button>
+      {turn === true && team === "" ? (
+        <button type="button" onClick={() => clicked()}>{team}</button>
       ) : (
-        <div>{props.team}</div>
+        <div>{team}</div>
       )}
     </td>
   );
@@ -23,5 +23,11 @@ Square.propTypes = {
   num: PropTypes.number,
   team: PropTypes.string
 };
+Square.defaultProps = {
+  turn: true,
+  num: 1,
+  team: ""
+};
+
 
 export default Square;

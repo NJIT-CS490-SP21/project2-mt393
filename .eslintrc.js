@@ -12,6 +12,7 @@ module.exports = {
     sourceType: "module",
   },
   plugins: ["react"],
+  ignorePatterns: ["App.test.js"],
   rules: {
     "react/no-array-index-key": "off",
     "react-hooks/exhaustive-deps": "off",

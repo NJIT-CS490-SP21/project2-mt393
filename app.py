@@ -48,6 +48,7 @@ SIDS = []
 TURNX = True
 BOARD = ["", "", "", "", "", "", "", "", ""]
 
+
 def emit_lb():
     """iterates over the database's 2 columns to put them into
     lists that can be sent over socket"""
@@ -80,9 +81,9 @@ def get_winner_loser(won, names):  # UNMOCKED TEST2
 def set_winner_ranks(winner):  #MOCKED TEST2
     """given the username of a winner, this method awards them
     their earned points in the eyes of the database"""
-    user = DB.session.query(
-        models.allusers).filter(models.allusers.username == winner).first()
-    user.rating += 1
+    query = DB.session.query(models.allusers).filter_by(username=winner)
+    for user in query:
+        user.rating += 1
     DB.session.commit()
     DB.session.remove()
 
@@ -131,7 +132,7 @@ def emit_board():
         SOCKETIO.emit("gameWon", {"winner": winner})
         outcome = get_winner_loser(winner, USERNAMES)
         set_winner_ranks(outcome["winner"])
-        set_loser_ranks(outcome["loser"])
+        #set_loser_ranks(outcome["loser"])
         emit_lb()
     SOCKETIO.emit("boardUpdate", {"updatedBoard": BOARD})
 
@@ -178,13 +179,16 @@ def on_name_submit(data):
 def add_to_lb(user):  # MOCKED TEST1
     """checks if a name is already on the leaderboard and if not,
     it puts them on there with 100 points"""
-    name_exist = models.allusers.query.filter(
-        models.allusers.username == user).count()
+    others = models.allusers.query.filter_by(username=user)
+    name_exist = False
+    for person in others:
+        if person:
+            pass
+        name_exist = True
     if not name_exist:
         DB.session.add(models.allusers(user, 100))
         DB.session.commit()
     DB.session.remove()
-    # assert : name exist
 
 
 @SOCKETIO.on('move')
@@ -218,9 +222,11 @@ def take_turn(turnx):
 
 
 @SOCKETIO.on('restart')
-def on_restart():
+def on_restart(data):
     """coordnates a restart. including a new board and setting
     the turn to x's again"""
+    if data:
+        pass
     SOCKETIO.emit("newgame", {})
     global TURNX
     global BOARD
@@ -248,4 +254,3 @@ if __name__ == "__main__":
         host=os.getenv('IP', '0.0.0.0'),
         port=8081 if os.getenv('C9_PORT') else int(os.getenv('PORT', 8081)),
     )
-    
